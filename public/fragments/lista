@@ -1,0 +1,42 @@
+<div class="row">
+  <h1> <small></small></h1>
+</div>
+<div class="row">
+	<div class="col-md-6 col-md-offset-3">
+		<div class="panel panel-default">
+		  <div class="panel-heading">
+		    <h3 class="panel-title">Lista de compra</h3>
+		  </div>
+		  <div class="panel-body">
+			<table class="table">
+				<thead>
+					<tr>
+						<th></th>
+						<th>Nome</th>
+						<th>Qtd.</th>
+						<th>Unit.($)</th>
+						<th>Sub.($)</th>
+						<th></th>
+				  </tr>
+				</thead>
+				<tbody id="tabela">
+				
+				</tbody>
+			</table>
+			<h5 id="total"></h5>
+			<div class="row">
+				<div class="col-xs-10">
+					<select class="form-control" id="selecao">
+					</select>
+				</div>
+				<div class="col-xs-2">
+					<span class="glyphicon glyphicon-plus" id="btn-adicionar"/>
+				</div>
+			</div>
+			</br>
+			</br>
+			<button type="button" class="btn btn-primary btn-block" id="btn-fechar">Fechar</button>
+		  </div>
+		</div>
+	</div>
+</div>
