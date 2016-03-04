@@ -124,38 +124,19 @@ function conteudo(fragmento, callback){
 function initViewLogin(){
     console.log('exibir login');
     conteudo('fragments/login',function(){
+        
+        //Ao carregar, coloca o focus no campo de email
+        $('#txt-email').focus();
+        
         //Botao de logar
         $('#btn-logar').on('click',function(ev) {
-            var txtemail = $('#txt-email');
-            var txtsenha = $('#txt-senha');
-            var email = txtemail.val();
-            var senha = txtsenha.val();
-            if(email!=null && email!=''){
-                if(senha!=null && senha!=''){
-                    var user = {
-        			    email: email,
-        			    password: senha
-    			    }
-                    fb.authWithPassword(user, function(error, userData){
-                        if(error){
-                            console.log('erro de login',error);
-                            if('INVALID_PASSWORD'==error.code || 'INVALID_USER'==error.code || 'INVALID_EMAIL'==error.code){
-                               if(!txtsenha.hasClass('notificado')){
-                                    txtsenha.addClass('notificado');
-        				            $('#lb-senha').after('<h5 id="emailsenhanotificado" class="vermelho">Email ou senha invalidos</h5>');
-                               }
-                            }else{
-                                if(!txtsenha.hasClass('notificado')){
-                                    txtsenha.addClass('notificado');
-        				            $('#lb-senha').after('<h5 id="emailsenhanotificado" class="vermelho">'+error.message+'</h5>');
-                                }
-                            }
-                        }else{
-                            console.log('login efetuado',userData);
-                            initViewCompras();
-                        }
-                    });
-                }
+            logar();
+        });
+        
+        //Pressionar enter no campo senha faz a acao de logar
+        $('#txt-senha').on('keypress',function(ev) {
+            if(ev.keyCode==13){
+              logar();  
             }
         });
         
@@ -165,6 +146,40 @@ function initViewLogin(){
         });
         
     });
+}
+
+function logar(){
+    var txtemail = $('#txt-email');
+    var txtsenha = $('#txt-senha');
+    var email = txtemail.val();
+    var senha = txtsenha.val();
+    if(email!=null && email!=''){
+        if(senha!=null && senha!=''){
+            var user = {
+			    email: email,
+			    password: senha
+		    }
+            fb.authWithPassword(user, function(error, userData){
+                if(error){
+                    console.log('erro de login',error);
+                    if('INVALID_PASSWORD'==error.code || 'INVALID_USER'==error.code || 'INVALID_EMAIL'==error.code){
+                       if(!txtsenha.hasClass('notificado')){
+                            txtsenha.addClass('notificado');
+				            $('#lb-senha').after('<h5 id="emailsenhanotificado" class="vermelho">Email ou senha invalidos</h5>');
+                       }
+                    }else{
+                        if(!txtsenha.hasClass('notificado')){
+                            txtsenha.addClass('notificado');
+				            $('#lb-senha').after('<h5 id="emailsenhanotificado" class="vermelho">'+error.message+'</h5>');
+                        }
+                    }
+                }else{
+                    console.log('login efetuado',userData);
+                    initViewCompras();
+                }
+            });
+        }
+    }  
 }
 
 function initViewLista(){
