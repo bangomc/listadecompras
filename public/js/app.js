@@ -262,14 +262,8 @@ function exibirCompra(dataCompra){
             var unit = JSON.parse(itemDados[index++]);
             var subt = qtd*unit;
             total += subt;
-            
-            var itemCompra = {
-                marcado: marcado,
-                nome: nome,
-                qtd: qtd,
-                unit: unit,
-                subt: subt
-            }
+
+            var itemCompra = new ItemCompra(marcado,nome,qtd,unit,subt);
             
             lista.push(itemCompra);
             addItemView(itemCompra);
@@ -298,13 +292,7 @@ function exibirCompra(dataCompra){
         $('#btn-adicionar').on('click',function(ev) {
             var selecionado = $('#selecao').val();
             var produto = buscarProduto(selecionado);
-            var itemCompra = {
-                marcado: false,
-                nome: produto.nome,
-                qtd: 1,
-                unit: 0,
-                subt: 0
-            }
+            var itemCompra = new ItemCompra(false,produto.nome,1,0,0);
             lista.push(itemCompra);
             addItemView(itemCompra);
             
