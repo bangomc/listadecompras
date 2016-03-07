@@ -4,8 +4,10 @@ var fbCompras = new Firebase('https://glaring-torch-8342.firebaseio.com/compras'
 var compras;
 var produtos;
 var lista = new Array();
+var emaildoCookie = '';
 
 function main(){
+    verificaCookie();
     initViewLogin();
     //initViewCompras();
 }
@@ -125,8 +127,13 @@ function initViewLogin(){
     console.log('exibir login');
     conteudo('fragments/login',function(){
         
-        //Ao carregar, coloca o focus no campo de email
-        $('#txt-email').focus();
+        if(emaildoCookie==''){
+            $('#txt-email').focus();
+        }else{
+            $('#txt-email').val(emaildoCookie);
+            $('#txt-senha').focus();
+        }
+        
         
         //Botao de logar
         $('#btn-logar').on('click',function(ev) {
@@ -176,6 +183,7 @@ function logar(){
                 }else{
                     console.log('login efetuado',userData);
                     initViewCompras();
+                    criarCookie(email);
                 }
             });
         }
@@ -389,5 +397,23 @@ function atualizaTotal(){
     $('#total').html('<b>Total($)</b>='+total);
 }
 
+//Se o Cookie existe, retorna o email
+function verificaCookie(){
+    var incCookie = document.cookie.split(';');
+    if(incCookie!=''){
+        for(var i = 0; i<incCookie.length; i++){
+            var cookieAtual = incCookie[i].split('=');
+            if(cookieAtual[0]=='email'){
+                emaildoCookie = cookieAtual[1];
+            }
+        }
+    }
+}
+
+//Cria o cookie com o email informado
+function criarCookie(email){
+    var emailCookie = 'email='+email+';path=/;expires=never';
+    document.cookie = emailCookie;
+}
 
 $(document).ready(main);
