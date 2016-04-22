@@ -8,8 +8,8 @@ var emaildoCookie = '';
 
 function main(){
     verificaCookie();
-    initViewLogin();
-    //initViewCompras();
+    //initViewLogin();
+    initViewCompras();
 }
 
 function initViewCadastro() {
@@ -333,9 +333,9 @@ function addItemView(itemCompra){
     linhaItem = '<tr id="linha'+cont+'">';
     linhaItem += '<td class="itemMarca"><span id="span'+cont+'" class="glyphicon glyphicon-ok"/></td>';
     linhaItem += '<td class="itemMarca">'+itemCompra.nome+'</td>';
-    linhaItem += '<td class="itemQtd" contenteditable="true" onfocusout="atualizaItem()">'+itemCompra.qtd+'</td>';
-    linhaItem += '<td contenteditable="true">'+itemCompra.unit+'</td>';
-    linhaItem += '<td>'+itemCompra.subt+'</td>';
+    linhaItem += '<td class="itemQtd" contenteditable="true" onfocusout="atualizaItem(this)">'+itemCompra.qtd+'</td>';
+    linhaItem += '<td class="itemUnit" contenteditable="true" onfocusout="atualizaItem(this)">'+itemCompra.unit+'</td>';
+    linhaItem += '<td class="itemSubt">'+itemCompra.subt+'</td>';
     linhaItem += '<td><span class="glyphicon glyphicon-remove item" id="'+cont+'"/></td>';
     linhaItem += '</tr>';
     $('#tabela').append(linhaItem);
@@ -347,9 +347,34 @@ function addItemView(itemCompra){
     }
 }
 
-function atualizaItem(){
-    var linha = $(this).parent();
-    alert(linha);
+function atualizaItem(td){
+    var tr = td.parentNode;
+    var trid = tr.id.replace('linha','');
+    var tdUnit = td.nextSibling;
+    
+    var qtditem = td.innerText;
+    var unititem = tdUnit.innerText;
+    
+    var itemCompra =  lista[trid-1];
+    
+    itemCompra.qtd = qtditem
+    itemCompra.unit = unititem;
+    itemCompra.subt = itemCompra.qtd * itemCompra.unit;
+    
+    //Atualiza a view
+    $('#'+tr.id).each(function(){
+        var tdAtual = $(this);
+        if(tdAtual.hasClass('itemQtd')){
+            tdAtual.html(itemCompra.qtd);
+        }else if(tdAtual.hasClass('itemUnit')){
+            tdAtual.html(itemCompra.unit);
+        }else if(tdAtual.hasClass('itemSubt')){
+            tdAtual.html(itemCompra.subt);
+        }
+    });
+    
+    atualizaTotal();
+    
 }
 
 //Percorre a lista atual de produtos para retornar o desejado
