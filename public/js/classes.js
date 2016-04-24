@@ -1,4 +1,5 @@
-function ItemCompra(marcado,nome,qtd,unit,subt){
+function ItemCompra(codigo,marcado,nome,qtd,unit,subt){
+    this.codigo = codigo;
     this.marcado = marcado;
     this.nome = nome;
     this.qtd = qtd;

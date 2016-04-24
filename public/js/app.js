@@ -5,6 +5,7 @@ var compras;
 var produtos;
 var lista = new Array();
 var emaildoCookie = '';
+var codigoItemCompra = 0;
 
 function main(){
     verificaCookie();
@@ -271,7 +272,7 @@ function exibirCompra(dataCompra){
             var subt = qtd*unit;
             total += subt;
 
-            var itemCompra = new ItemCompra(marcado,nome,qtd,unit,subt);
+            var itemCompra = new ItemCompra(++codigoItemCompra,marcado,nome,qtd,unit,subt);
             
             lista.push(itemCompra);
             addItemView(itemCompra);
@@ -288,90 +289,89 @@ function exibirCompra(dataCompra){
         
         $('#selecao').append(opcoes);
         
-        //Remove o item da view e da lista
-        $('.item').on('click',function(ev) {
-            var remover = $(this).attr('id');
-            var linhaRemover = '#linha'+remover;
-            $(linhaRemover).remove();
-            lista.splice(--remover,1);
-            atualizaTotal();
-        });
-        
         $('#btn-adicionar').on('click',function(ev) {
             var selecionado = $('#selecao').val();
             var produto = buscarProduto(selecionado);
-            var itemCompra = new ItemCompra(false,produto.nome,1,0,0);
+            var itemCompra = new ItemCompra(++codigoItemCompra,false,produto.nome,1,0,0);
             lista.push(itemCompra);
             addItemView(itemCompra);
             
         });
         
-        $('.itemMarca').on('click',function(ev) {
-            var linha = $(this).parent();
-            var spanId = '#span'+linha.attr('id').replace('linha','');
-            if(linha.hasClass('marcado')){
-                $(spanId).hide();
-                linha.removeClass('marcado');
-            }else{
-                $(spanId).show();
-                linha.addClass('marcado');
-            }
-        });
+        addListeners();
         
-        // $('.itemQtd').on('click',function(ev) {
-            
-        // });
-        
+    });
+}
+
+//Adiciona listeners aos itens
+function addListeners(){
+    $('.itemMarca').on('click',function(ev) {
+        var linha = $(this).parent();
+        var spanId = '#span'+linha.attr('id').replace('linha','');
+        if(linha.hasClass('marcado')){
+            $(spanId).hide();
+            linha.removeClass('marcado');
+        }else{
+            $(spanId).show();
+            linha.addClass('marcado');
+        }
+    });
+    
+    //Remove o item da view e da lista
+    $('.item').on('click',function(ev) {
+        var remover = $(this).attr('id');
+        var linhaRemover = '#linha'+remover;
+        $(linhaRemover).remove();
+        removerItem(remover);
+        atualizaTotal();
     });
 }
 
 //Adiciona o item na tabela
 function addItemView(itemCompra){
-    var cont = lista.length;
     var linhaItem;
             
-    linhaItem = '<tr id="linha'+cont+'">';
-    linhaItem += '<td class="itemMarca"><span id="span'+cont+'" class="glyphicon glyphicon-ok"/></td>';
+    linhaItem = '<tr id="linha'+codigoItemCompra+'">';
+    linhaItem += '<td class="itemMarca"><span id="span'+codigoItemCompra+'" class="glyphicon glyphicon-ok"/></td>';
     linhaItem += '<td class="itemMarca">'+itemCompra.nome+'</td>';
     linhaItem += '<td class="itemQtd" contenteditable="true" onfocusout="atualizaItem(this)">'+itemCompra.qtd+'</td>';
     linhaItem += '<td class="itemUnit" contenteditable="true" onfocusout="atualizaItem(this)">'+itemCompra.unit+'</td>';
     linhaItem += '<td class="itemSubt">'+itemCompra.subt+'</td>';
-    linhaItem += '<td><span class="glyphicon glyphicon-remove item" id="'+cont+'"/></td>';
+    linhaItem += '<td><span class="glyphicon glyphicon-remove item" id="'+codigoItemCompra+'"/></td>';
     linhaItem += '</tr>';
     $('#tabela').append(linhaItem);
     
     if(itemCompra.marcado){
-        $('#linha'+cont).addClass('marcado')
+        $('#linha'+codigoItemCompra).addClass('marcado')
     }else{
-        $('#span'+cont).hide();
+        $('#span'+codigoItemCompra).hide();
     }
+    
+    addListeners();
+   
 }
 
 function atualizaItem(td){
     var tr = td.parentNode;
     var trid = tr.id.replace('linha','');
-    var tdUnit = td.nextSibling;
+
+    var tdItemQtd = $('#'+tr.id+' td.itemQtd');
+    var tdItemUnit = $('#'+tr.id+' td.itemUnit');
+    var tdItemSubt = $('#'+tr.id+' td.itemSubt');
     
-    var qtditem = td.innerText;
-    var unititem = tdUnit.innerText;
+    var qtditem = tdItemQtd.text();
+    var unititem = tdItemUnit.text();
     
-    var itemCompra =  lista[trid-1];
+    var itemCompra =  buscarItemCompra(trid);
     
     itemCompra.qtd = qtditem
     itemCompra.unit = unititem;
     itemCompra.subt = itemCompra.qtd * itemCompra.unit;
     
     //Atualiza a view
-    $('#'+tr.id).each(function(){
-        var tdAtual = $(this);
-        if(tdAtual.hasClass('itemQtd')){
-            tdAtual.html(itemCompra.qtd);
-        }else if(tdAtual.hasClass('itemUnit')){
-            tdAtual.html(itemCompra.unit);
-        }else if(tdAtual.hasClass('itemSubt')){
-            tdAtual.html(itemCompra.subt);
-        }
-    });
+    tdItemQtd.text(itemCompra.qtd);
+    tdItemUnit.text(itemCompra.unit);
+    tdItemSubt.text(itemCompra.subt);
     
     atualizaTotal();
     
@@ -391,6 +391,31 @@ function buscarProduto(codigoNome) {
     }
     return produtos[codigoNome];
     
+}
+
+//Procura na lista de itens um com o codigo informado
+function buscarItemCompra(codigo){
+    var item;
+    for(item in lista){
+        var itemAtual = lista[item];
+        if(itemAtual.codigo == codigo){
+            return itemAtual;
+        }
+    }
+}
+
+//Remove um item da lista
+function removerItem(codigo){
+    var item;
+    var indexRemover;
+    for(item in lista){
+        var itemAtual = lista[item];
+        if(itemAtual.codigo == codigo){
+            indexRemover = item;
+            break;
+        }
+    }
+    lista.splice(indexRemover,1);
 }
 
 //Percorre a lista atual de compras para retornar a desejada
