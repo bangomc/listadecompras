@@ -251,6 +251,9 @@ function initViewCompras(){
 function exibirCompra(dataCompra){
     conteudo('fragments/lista',function() {
         
+        //Esconde o cadastro do novo produto
+        $('#linhanovoproduto').hide();
+        
         $('#btn-fechar').on('click',function(ev){
             initViewCompras();
         });
@@ -278,10 +281,10 @@ function exibirCompra(dataCompra){
             addItemView(itemCompra);
         }
         
-        atualizaTotal();
+        //atualizaTotal();
         
         var prod;
-        var opcoes = '';
+        var opcoes = '<option>Adicionar</option>';
         for(prod in produtos){
             var pro = produtos[prod];
             opcoes += '<option>'+pro.nome+'</option>';
@@ -291,21 +294,29 @@ function exibirCompra(dataCompra){
         
         $('#btn-adicionar').on('click',function(ev) {
             var selecionado = $('#selecao').val();
-            var produto = buscarProduto(selecionado);
-            var itemCompra = new ItemCompra(++codigoItemCompra,false,produto.nome,1,0,0);
-            lista.push(itemCompra);
-            addItemView(itemCompra);
-            
+            if(selecionado=='Adicionar'){
+                 $('#linhaselecao').hide();
+                 $('#linhanovoproduto').show();
+                 
+            }else{
+                var produto = buscarProduto(selecionado);
+                var itemCompra = new ItemCompra(++codigoItemCompra,false,produto.nome,1,0,0);
+                lista.push(itemCompra);
+                addItemView(itemCompra);    
+            }
         });
         
-        addListeners();
+        $('#btn-addprod').on('click',function(ev) {
+            $('#linhaselecao').show();
+            $('#linhanovoproduto').hide();
+        });
         
     });
 }
 
-//Adiciona listeners aos itens
+//Adiciona listeners ao item de Codigo atual
 function addListeners(){
-    $('.itemMarca').on('click',function(ev) {
+    $('#linha'+codigoItemCompra+' td.itemMarca').on('click',function(ev) {
         var linha = $(this).parent();
         var spanId = '#span'+linha.attr('id').replace('linha','');
         if(linha.hasClass('marcado')){
@@ -318,12 +329,16 @@ function addListeners(){
     });
     
     //Remove o item da view e da lista
-    $('.item').on('click',function(ev) {
+    $('#linha'+codigoItemCompra+' .item').on('click',function(ev) {
         var remover = $(this).attr('id');
         var linhaRemover = '#linha'+remover;
         $(linhaRemover).remove();
         removerItem(remover);
-        atualizaTotal();
+        //atualizaTotal();
+    });
+    
+    $('#linha'+codigoItemCompra+' .itemQtd').on('focusout',function(ev) {
+        atualizaItem2($(this));
     });
 }
 
@@ -334,9 +349,9 @@ function addItemView(itemCompra){
     linhaItem = '<tr id="linha'+codigoItemCompra+'">';
     linhaItem += '<td class="itemMarca"><span id="span'+codigoItemCompra+'" class="glyphicon glyphicon-ok"/></td>';
     linhaItem += '<td class="itemMarca">'+itemCompra.nome+'</td>';
-    linhaItem += '<td class="itemQtd" contenteditable="true" onfocusout="atualizaItem(this)">'+itemCompra.qtd+'</td>';
-    linhaItem += '<td class="itemUnit" contenteditable="true" onfocusout="atualizaItem(this)">'+itemCompra.unit+'</td>';
-    linhaItem += '<td class="itemSubt">'+itemCompra.subt+'</td>';
+    //linhaItem += '<td class="itemQtd" contenteditable="true" onfocusout="atualizaItem(this)">'+itemCompra.qtd+'</td>';
+    //linhaItem += '<td class="itemUnit" contenteditable="true" onfocusout="atualizaItem(this)">'+itemCompra.unit+'</td>';
+    //linhaItem += '<td class="itemSubt">'+itemCompra.subt+'</td>';
     linhaItem += '<td><span class="glyphicon glyphicon-remove item" id="'+codigoItemCompra+'"/></td>';
     linhaItem += '</tr>';
     $('#tabela').append(linhaItem);
@@ -347,7 +362,7 @@ function addItemView(itemCompra){
         $('#span'+codigoItemCompra).hide();
     }
     
-    addListeners();
+   addListeners();
    
 }
 
@@ -373,7 +388,34 @@ function atualizaItem(td){
     tdItemUnit.text(itemCompra.unit);
     tdItemSubt.text(itemCompra.subt);
     
-    atualizaTotal();
+    //atualizaTotal();
+    
+}
+
+function atualizaItem2(td){
+    var tr = td.parent();
+    var trid = tr.attr('id');
+    var codigo = trid.replace('linha','');
+
+    var tdItemQtd = $('#'+trid+' td.itemQtd');
+    var tdItemUnit = $('#'+trid+' td.itemUnit');
+    var tdItemSubt = $('#'+trid+' td.itemSubt');
+    
+    var qtditem = tdItemQtd.val();
+    var unititem = tdItemUnit.val();
+    
+    var itemCompra =  buscarItemCompra(codigo);
+    
+    itemCompra.qtd = qtditem
+    itemCompra.unit = unititem;
+    itemCompra.subt = itemCompra.qtd * itemCompra.unit;
+    
+    //Atualiza a view
+    tdItemQtd.val(itemCompra.qtd);
+    tdItemUnit.val(itemCompra.unit);
+    tdItemSubt.val(itemCompra.subt);
+    
+    //atualizaTotal();
     
 }
 
